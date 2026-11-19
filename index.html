@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Prayer Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E1E0D8;color:#383838;font-family:Montserrat,Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 40px}
+.banner{background:#CEECF4;color:#223A3F;margin:0 -16px;padding:8px 16px;font-size:13px;font-weight:700;text-align:center}
+.hero{background:#223A3F;color:#E1E0D8;margin:0 -16px 16px;padding:28px 20px 22px}
+.kicker{margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#91A673;font-weight:700}
+h1{font-family:Merriweather,Georgia,serif;font-size:22px;line-height:1.3;margin:0}
+.sub{margin:6px 0 0;color:#CEECF4;font-size:15px}
+.card{background:#fff;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.big{display:block;width:100%;border:0;border-radius:14px;background:#5E7461;color:#fff;font:700 18px Montserrat,Arial,sans-serif;padding:18px;margin:0 0 10px;cursor:pointer}
+.big:active{background:#223A3F}.big:disabled{opacity:.6}
+.or{text-align:center;color:#5E7461;font-size:14px;margin:0 0 12px}
+.person{display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid #eee;font-size:17px;cursor:pointer}
+.person:last-child{border-bottom:0}.person input{display:none}
+.tick{width:26px;height:26px;border-radius:50%;background:#91A673;flex:none;position:relative}
+.tick:after{content:"";position:absolute;left:9px;top:5px;width:6px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.nm{flex:1}.st{font-size:13px;font-weight:700}.here{color:#5E7461}.gone{display:none;color:#a14b3b}
+.person input:not(:checked)~.tick{background:#ddd}.person input:not(:checked)~.tick:after{display:none}
+.person input:not(:checked)~.nm{color:#999;text-decoration:line-through}
+.person input:not(:checked)~.here{display:none}.person input:not(:checked)~.gone{display:inline}
+.lbl{display:block;font-weight:700;font-size:15px;margin:0 0 10px}.opt{font-weight:400;color:#5E7461;font-size:13px}
+input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px;border:1px solid #ccc;border-radius:10px;font-family:inherit}
+.stepper{display:flex;align-items:stretch;width:fit-content;margin:4px auto 0;border:1px solid #c9cfc9;border-radius:14px;overflow:hidden;background:#fff}
+.stepper button{width:56px;height:56px;border:0;background:#CEECF4;color:#223A3F;font-size:26px;font-weight:700;cursor:pointer}
+.stepper button:active{background:#85ABAF}
+.stepper input{width:76px;flex:none;box-sizing:border-box;text-align:center;font:700 24px Montserrat,Arial,sans-serif;color:#223A3F;border:0;border-left:1px solid #c9cfc9;border-right:1px solid #c9cfc9;border-radius:0;padding:0;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.muted{color:#6b6b6b}.small{font-size:13px;margin:12px 0 0;text-align:center}.err{color:#a14b3b;text-align:center}
+.thanks{text-align:center;padding:32px 20px}.thanks h1{color:#223A3F;margin-bottom:8px}
+.loading{text-align:center;padding:40px 0;color:#5E7461}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="loading">Loading…</p></div>
+<script>
+(function () {
+  var API = 'https://script.google.com/macros/s/AKfycbzrC-88HcGeXM7caY79AE8V1QRrJ7YxCD0Psb7pEwp_Y2-0h80-G1xrQPFhtHdO3agwTg/exec';
+  var q = new URLSearchParams(location.search);
+  var K = q.get('k') || '', SVC = q.get('svc') || '', DEMO = q.get('demo') === '1';
+  var app = document.getElementById('app');
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function card(title, body) { app.replaceChildren(); var c = el('div', 'card'); c.style.marginTop = '24px'; c.append(el('h1', null, title)); if (body) c.append(el('p', null, body)); app.append(c); }
+
+  if (!K || !SVC) { card('Link not recognized', 'Please use the link from your text.'); return; }
+
+  fetch(API + '?api=names&svc=' + encodeURIComponent(SVC) + '&k=' + encodeURIComponent(K) + (DEMO ? '&demo=1' : ''))
+    .then(function (r) { return r.json(); })
+    .then(render)
+    .catch(function () { card('We couldn’t load this just now', 'Please check your signal and try again in a minute.'); });
+
+  function render(d) {
+    if (!d.ok) { card(d.error === 'svc' ? 'Which service?' : 'Link not recognized', 'Please use the link from your text.'); return; }
+    document.title = 'Prayer Team ' + d.svc;
+    if (d.noPrayer) { card('No Prayer Team today', 'Enjoy the service, ' + d.leader + '. Thanks for all you do.'); return; }
+    app.replaceChildren();
+    if (d.demo) app.append(el('p', 'banner', 'Preview: sample names, nothing is saved'));
+    var hero = el('div', 'hero');
+    hero.append(el('p', 'kicker', 'Prayer Team · ' + d.svc), el('h1', null, 'Hi ' + d.leader + ', who served today?'), el('p', 'sub', d.day));
+    app.append(hero);
+
+    var form = el('div'); app.append(form);
+    var names = d.names || [];
+    var all = null;
+    if (names.length) {
+      all = el('button', 'big', 'Everyone was here'); all.type = 'button';
+      form.append(all, el('p', 'or', 'or tap anyone who didn’t make it'));
+    }
+    var list = el('div', 'card list'); form.append(list);
+    names.forEach(function (n) {
+      var lab = el('label', 'person'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = true; cb.value = n;
+      lab.append(cb, el('span', 'tick'), el('span', 'nm', n), el('span', 'st here', 'Here'), el('span', 'st gone', 'Not today'));
+      list.append(lab);
+    });
+    if (!names.length) list.append(el('p', 'muted', 'No one signed up for ' + d.svc + ' in Planning Center' + (d.pcoError ? ' (we couldn’t reach it just now)' : '') + '. Add anyone who served below.'));
+
+    var c2 = el('div', 'card'); var l2 = el('label', 'lbl', 'Anyone else step in to pray?'); l2.htmlFor = 'extra';
+    var extra = el('input'); extra.type = 'text'; extra.id = 'extra'; extra.placeholder = 'Names, if any'; extra.autocomplete = 'off';
+    c2.append(l2, extra); form.append(c2);
+
+    var c3 = el('div', 'card'); var l3 = el('label', 'lbl', 'About how many people did your team pray with? '); l3.append(el('span', 'opt', 'Optional'));
+    var step = el('div', 'stepper'); var minus = el('button', null, '−'); minus.type = 'button';
+    var count = el('input'); count.type = 'number'; count.inputMode = 'numeric'; count.min = '0'; count.placeholder = '–';
+    var plus = el('button', null, '+'); plus.type = 'button';
+    step.append(minus, count, plus);
+    c3.append(l3, step, el('p', 'muted small', 'Just a number. Please don’t include any names or prayer details.'));
+    form.append(c3);
+    plus.onclick = function () { count.value = (Number(count.value) || 0) + 1; };
+    minus.onclick = function () { count.value = Math.max(0, (Number(count.value) || 0) - 1); };
+
+    var send = el('button', 'big', 'Send'); send.type = 'button'; var err = el('p', 'err');
+    form.append(send, err);
+
+    function submit(everyone) {
+      var s = [], m = [];
+      list.querySelectorAll('input').forEach(function (c) { (c.checked || everyone ? s : m).push(c.value); });
+      send.disabled = true; if (all) all.disabled = true; send.textContent = 'Sending…'; err.textContent = '';
+      var body = { k: K, svc: d.svc, sunday: d.sunday, planId: d.planId, served: s, missed: m, extra: extra.value, count: count.value };
+      var done = function () {
+        app.replaceChildren();
+        if (d.demo) app.append(el('p', 'banner', 'Preview: sample names, nothing is saved'));
+        app.append(hero);
+        var t = el('div', 'card thanks'); t.append(el('h1', null, 'Thank you, ' + d.leader + '.'), el('p', null, 'Got it. Thanks for leading your team today.'));
+        app.append(t); window.scrollTo(0, 0);
+      };
+      fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json(); })
+        .then(function (res) { if (res && res.ok) done(); else throw new Error('save'); })
+        .catch(function () { send.disabled = false; if (all) all.disabled = false; send.textContent = 'Send'; err.textContent = 'That didn’t go through. Please try again.'; });
+    }
+    if (all) all.onclick = function () { submit(true); };
+    send.onclick = function () { submit(false); };
+  }
+})();
+</script>
+</body>
+</html>
