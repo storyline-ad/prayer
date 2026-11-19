@@ -29,6 +29,7 @@ h1{font-family:Merriweather,Georgia,serif;font-size:22px;line-height:1.3;margin:
 .person input:not(:checked)~.nm{color:#999;text-decoration:line-through}
 .person input:not(:checked)~.here{display:none}.person input:not(:checked)~.gone{display:inline}
 .lbl{display:block;font-weight:700;font-size:15px;margin:0 0 10px}.opt{font-weight:400;color:#5E7461;font-size:13px}
+textarea{width:100%;box-sizing:border-box;font-size:17px;padding:12px;border:1px solid #ccc;border-radius:10px;font-family:inherit}
 input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px;border:1px solid #ccc;border-radius:10px;font-family:inherit}
 .stepper{display:flex;align-items:stretch;width:fit-content;margin:4px auto 0;border:1px solid #c9cfc9;border-radius:14px;overflow:hidden;background:#fff}
 .stepper button{width:56px;height:56px;border:0;background:#CEECF4;color:#223A3F;font-size:26px;font-weight:700;cursor:pointer}
@@ -98,6 +99,10 @@ input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px;bo
     plus.onclick = function () { count.value = (Number(count.value) || 0) + 1; };
     minus.onclick = function () { count.value = Math.max(0, (Number(count.value) || 0) - 1); };
 
+    var c4 = el('div', 'card'); var l4 = el('label', 'lbl', 'Anything Tony should know? '); l4.append(el('span', 'opt', 'Optional')); l4.htmlFor = 'notes';
+    var notes = el('textarea'); notes.id = 'notes'; notes.rows = 3; notes.maxLength = 1000; notes.placeholder = 'How it went, someone new, anything that needs follow-up';
+    c4.append(l4, notes); form.append(c4);
+
     var send = el('button', 'big', 'Send'); send.type = 'button'; var err = el('p', 'err');
     form.append(send, err);
 
@@ -106,6 +111,7 @@ input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px;bo
       list.querySelectorAll('input').forEach(function (c) { (c.checked || everyone ? s : m).push(c.value); });
       send.disabled = true; if (all) all.disabled = true; send.textContent = 'Sending…'; err.textContent = '';
       var body = { k: K, svc: d.svc, sunday: d.sunday, planId: d.planId, served: s, missed: m, extra: extra.value, count: count.value };
+      body.notes = notes.value;
       var done = function () {
         app.replaceChildren();
         if (d.demo) app.append(el('p', 'banner', 'Preview: sample names, nothing is saved'));
