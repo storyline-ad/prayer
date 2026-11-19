@@ -94,7 +94,7 @@ input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px;bo
     var count = el('input'); count.type = 'number'; count.inputMode = 'numeric'; count.min = '0'; count.placeholder = '–';
     var plus = el('button', null, '+'); plus.type = 'button';
     step.append(minus, count, plus);
-    c3.append(l3, step, el('p', 'muted small', 'Just a number. Please don’t include any names or prayer details.'));
+    c3.append(l3, step);
     form.append(c3);
     plus.onclick = function () { count.value = (Number(count.value) || 0) + 1; };
     minus.onclick = function () { count.value = Math.max(0, (Number(count.value) || 0) - 1); };
